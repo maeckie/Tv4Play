@@ -2,6 +2,7 @@
 import re
 import urllib2
 import urllib
+import datetime
 
 PLUGIN_TITLE = 'TV4 Play'
 PLUGIN_PREFIX = '/video/tv4play'
@@ -57,6 +58,12 @@ def TV4Shows(categoryName):
 
 def TV4Episodes(showName):
 	oc =  ObjectContainer(title2 = showName)
+	ep = EpisodeObject()
+	media = MediaObject(
+ 		 parts = [
+			PartObject(key = WebVideoURL("http://www.tv4play.se/program/nyheterna?video_id=2253879"))
+  		]
+	)
   
 	textVar = { 'text' : showName}
   	title = urllib.urlencode(textVar)
@@ -68,12 +75,16 @@ def TV4Episodes(showName):
 		name = episode['name']
 		vmanid = episode['vmanprogid']
 		date = episode['publishdate']
-		#VideoUrl = SWF_PLAYER_URL % vmanid
+		VideoUrl = SWF_PLAYER_URL % vmanid
 		thumb = episode['thumbnail']
 		summary = episode['lead']
 		publishdate = episode['publishdate']
+		ep.title=name
+		ep.add(media)
 		oc.add(VideoClipObject(key=Callback(TV4Play, vmanid=vmanid), title=name, thumb=thumb, summary=summary, rating_key=vmanid))
-	
+		#oc.add(VideoClipObject(url=VideoUrl, key=ObjectContainer(objects = [MovieObject(title = "Movie")]), title=name, thumb=thumb, summary=summary, rating_key=vmanid))
+    		#oc.add(VideoClipObject(url = VideoUrl, title = name,summary = summary,thumb = thumb, rating = 111111.00))
+		#oc.add(WebVideo("http://www.tv4play.se/program/nyheterna?video_id=2253879"), title=name)
 	return oc
 
 @indirect
@@ -91,7 +102,8 @@ def TV4Play(vmanid):
 
 	#Log("This is my SmilXML: %s", SmilXML)
 	clipurl = "mp4:/mp4root/2012-11-21/pid3923685(2242502_T3MP4130).mp4?token=c3RhcnRfdGltZT0yMDEyMTEyNjE4NTAyNiZlbmRfdGltZT0yMDEyMTEyNjE4NTIyNiZkaWdlc3Q9ZWJiM2Q0YTQxNDc0ZmYwMTcyMmZkNDc0NmZmZDhhODg="
-	return IndirectResponse(VideoClipObject, key=RTMPVideoURL(url="rtmpe://cp70051.edgefcs.net/tv4ondemand", clip=clipurl, swf_url="http://wwwb.tv4play.se/polopoly_fs/1.939636.1281635185!approot/tv4video.swf?swfvfy=true"))
+	#return IndirectResponse(VideoClipObject, key=RTMPVideoURL(url="rtmpe://cp70051.edgefcs.net/tv4ondemand", clip=clipurl, swf_url="http://wwwb.tv4play.se/polopoly_fs/1.939636.1281635185!approot/tv4video.swf?swfvfy=true"))
+	return IndirectResponse(VideoClipObject, key=WebVideoURL("http://embed.tv4play.se/tv4play/v0/tv4video.swf?vid=2253459"))
 
 def GetThumb(name=None, parent=None):
   if name == 'Aktualitet':
